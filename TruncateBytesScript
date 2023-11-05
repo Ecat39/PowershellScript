@@ -1,8 +1,8 @@
 #Source Path (Change this string to the folder path containing the files you want to truncate)
-$SOURCEPATH = "C:\Users\lucia\Downloads\Idle Huntress\data\com.lysn.wlq.sea.gp\files\Sandbox_Temp - Decrypted"
+$SOURCEPATH = "C:\Users\Downloads\DataFiles\SourceFolder"
 
 #Destination Path (Change this string to the new folder path where you want to save the truncated files)
-$DESTINATIONPATH = "C:\Users\lucia\Downloads\Idle Huntress\data\com.lysn.wlq.sea.gp\files\Sandbox_Temp - Decrypted3\"
+$DESTINATIONPATH = "C:\Users\Downloads\DataFiles\DestinationFolder"
 
 $files = dir $SOURCEPATH | where { !$_.PsIsContainer }
 $total = (Get-ChildItem $SOURCEPATH -File | Measure-Object).Count
