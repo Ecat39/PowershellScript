@@ -1,0 +1,37 @@
+#Source Path (Change this string to the folder path containing the files you want to truncate)
+$SOURCEPATH = "C:\Users\lucia\Downloads\Idle Huntress\data\com.lysn.wlq.sea.gp\files\Sandbox_Temp - Decrypted"
+
+#Destination Path (Change this string to the new folder path where you want to save the truncated files)
+$DESTINATIONPATH = "C:\Users\lucia\Downloads\Idle Huntress\data\com.lysn.wlq.sea.gp\files\Sandbox_Temp - Decrypted3\"
+
+$files = dir $SOURCEPATH | where { !$_.PsIsContainer }
+$total = (Get-ChildItem $SOURCEPATH -File | Measure-Object).Count
+$count = 1
+
+if (!(Test-Path $DESTINATIONPATH -PathType Container)) {
+    New-Item -ItemType Directory -Force -Path $DESTINATIONPATH
+}
+
+foreach ($file in $files) {
+    Write-Output "File being truncated: $($file.FullName)"
+	# Read the entire file content as a [byte[]] array.
+	$byteArray = Get-Content "$($file.FullName)" -Raw -Encoding Byte
+
+	# Convert the byte array to a single-line "byte string", where the whitespace-separated tokens are the hex encoding of a single byte.
+	# If you prefer each byte to be consistently represented as two hex digits, even for values less than 0x10, (e.g., 01 rather than 1 or 00 rather than 0), use 'X2'
+	$byteString = $byteArray.ForEach('ToString', 'X') -join ' '
+
+	# Replacement Function (Change 42 59 54 45 53 54 52 49 4E 47 0 0 0 0 to your own specific byte string)
+	# If you use 'X' above, hex numbers must not have leadig zeros (eg. 0 rather than 00)
+	# If you use 'X2' above, hex numbers must have leadig zeros (eg. 09 rather than 9)
+	$byteString = $byteString -replace '(?s)^.*(?=42 59 54 45 53 54 52 49 4E 47 0 0 0 0.*$)'
+
+	# Convert the byte string back to a [byte[]] array, and save it to the target file.
+	[byte[]] $newByteArray = -split $byteString -replace '^', '0x'
+	Set-Content -path "$($DESTINATIONPATH+$file.Name)" -Encoding Byte -Value $newByteArray
+
+    Write-Output "Truncation done!`n"
+	
+	Write-Output $count/$total
+	$count++
+}
